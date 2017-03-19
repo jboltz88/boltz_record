@@ -1,0 +1,48 @@
+1. A ruby gem is a packaged piece of code that allows you to
+   add functionality to your applications in a very modular way. Gems
+   allow you to bypass writing a lot of functionality or tools into
+   your program by integrating them into your program.
+
+2. Eager loading cuts down the number of SQL queries by loading
+   everything you will need and then holding it in memory.
+   Lazy loading just queries the database as needs arise. This
+   leads to hitting the database more often with queries to find
+   specific entries.
+
+3. CREATE TABLE creates the table that holds the values for the data
+   you're wanting to hold in a database. The attributes for a table
+   are determined by the CREATE TABLE method initially. INSERT INTO
+   enters new data into a table that has already been created. It can
+   only enter data for attributes that have already been determined.
+
+4. Extend gives access to another module's methods as class methods.
+   Include gives access to another module's methods as instance methods.
+
+5. A save method on a class doesn't make sense. In order to save data for
+   a specific object that is an instance of some class, you need to be using
+   a method that applies to instances and not the class as a whole.
+
+6. UPDATE character
+   SET character_name = 'Jar-Jar Binks', star_rating = 1)
+   WHERE id = 1;
+
+7. We'll have to add a function that queries the database for all entries.
+   i.e. SELECT * FROM entries;
+
+8. def camelCase(string)
+      string = string.tr("_", " ")
+      string = string.downcase
+      string = string.split(" ")
+      string[1..string.length - 1].each { |word| word.capitalize! }
+      string = string.join("")
+   end
+
+9.  def find_by(attribute, value)
+      row = connection.get_first_row <<-SQL
+        SELECT #{columns.join ","} FROM #{table}
+        WHERE #{attribute} = #{value};
+      SQL
+
+      data = Hash[columns.zip(row)]
+      new(data)
+    end
