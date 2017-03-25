@@ -192,6 +192,15 @@ module Selection
           SELECT * FROM #{table}
           INNER JOIN #{args.first} ON #{args.first}.#{table}_id = #{table}.id
         SQL
+      when Hash
+        expression_hash = BoltzRecord::Utility.convert_keys(args.first)
+        expression = expression_hash.map { |key, value| "#{key} ON #{key}.#{table}_id = #{table}.id
+                     INNER JOIN #{BoltzRecord::Utility.sql_strings(value)} ON #{BoltzRecord::Utility.sql_strings(value)}.#{key}_id = #{key}.id"}.join(" INNER JOIN ")
+
+        rows = connection.execute <<-SQL
+          SELECT * FROM #{table}
+          INNER JOIN #{expression};
+        SQL
       end
     end
 
