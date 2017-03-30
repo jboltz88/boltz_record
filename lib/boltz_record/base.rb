@@ -3,6 +3,7 @@ require 'boltz_record/schema'
 require 'boltz_record/persistence'
 require 'boltz_record/selection'
 require 'boltz_record/connection'
+require 'boltz_record/collection'
 
 module BoltzRecord
   class Base

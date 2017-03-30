@@ -28,6 +28,22 @@ module Persistence
     true
   end
 
+  def update_attribute(attribute, value)
+    self.class.update(self.id, { attribute => value })
+  end
+
+  def update_attributes(updates)
+    self.class.update(self.id, updates)
+  end
+
+  def method_missing(method_name, *arguments, &block)
+    if method_name.to_s =~ /update_(.*)/
+      update_attribute($1, *arguments[0])
+    else
+      super
+    end
+  end
+
   module ClassMethods
     def create(attrs)
       attrs = BoltzRecord::Utility.convert_keys(attrs)
@@ -42,6 +58,38 @@ module Persistence
       data = Hash[attributes.zip attrs.values]
       data["id"] = connection.execute("SELECT last_insert_rowid();")[0][0]
       new(data)
+    end
+
+    def update(ids, updates)
+      if updates.class == Array
+        updates.each_with_index do |update, index|
+          update(ids[index], update)
+        end
+      else updates.class == Hash
+        updates = BoltzRecord::Utility.convert_keys(updates)
+        updates.delete "id"
+        updates_array = updates.map { |key, value| "#{key}=#{BoltzRecord::Utility.sql_strings(value)}" }
+
+        if ids.class == Fixnum
+          where_clause = "WHERE id = #{ids};"
+        elsif ids.class == Array
+          where_clause = ids.empty? ? ";" : "WHERE id IN (#{ids.join(",")});"
+        else
+          where_clause = ";"
+        end
+
+        sql = <<-SQL
+          UPDATE #{table}
+          SET #{updates_array * ","} #{where_clause}
+        SQL
+
+        connection.execute(sql)
+        true
+      end
+    end
+
+    def update_all(updates)
+      update(nil, updates)
     end
   end
 end

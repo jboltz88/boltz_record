@@ -146,7 +146,7 @@ module Selection
         expression = args.first
       when Hash
         expression_hash = BoltzRecord::Utility.convert_keys(args.first)
-        expression = expression_hash.map { |key, value| "#{key}=#{BoltzRecord::Utility.sql_strings(value)}"}.join(" and ")
+        expression = expression_hash.map { |key, value| "#{key}=#{BoltzRecord::Utility.sql_strings(value)}"}.join(" AND ")
       end
     end
     # where("email = ? AND phone = ?", useremail, phone)
@@ -155,7 +155,7 @@ module Selection
       SELECT #{columns.join ","} FROM #{table}
       WHERE #{expression};
     SQL
-
+    puts sql
     rows = connection.execute(sql, params)
     rows_to_array(rows)
   end
@@ -217,6 +217,8 @@ module Selection
   end
 
   def rows_to_array(rows)
-    rows.map { |row| new(Hash[columns.zip(row)]) }
+    collection = BoltzRecord::Collection.new
+    rows.each { |row| collection << new(Hash[columns.zip(row)]) }
+    collection
   end
 end
