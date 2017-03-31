@@ -36,6 +36,10 @@ module Persistence
     self.class.update(self.id, updates)
   end
 
+  def destroy
+    self.class.destroy(self.id)
+  end
+
   def method_missing(method_name, *arguments, &block)
     if method_name.to_s =~ /update_(.*)/
       update_attribute($1, *arguments[0])
@@ -90,6 +94,50 @@ module Persistence
 
     def update_all(updates)
       update(nil, updates)
+    end
+
+    def destroy(*id)
+      if id.length > 1
+        where_clause = "WHERE id IN (#{id.join(",")});"
+      else
+        where_clause = "WHERE id = #{id.first};"
+      end
+
+      connection.execute <<-SQL
+        DELETE FROM #{table} #{where_clause}
+      SQL
+      true
+    end
+
+    def destroy_all(*conditions_hash)
+      params = nil
+      if !conditions_hash.empty?
+        if conditions_hash.length > 1
+          conditions = conditions_hash.shift
+          params = conditions_hash
+        else
+          conditions_hash = conditions_hash.first
+          if conditions_hash.class == Hash
+            conditions_hash = BoltzRecord::Utility.convert_keys(conditions_hash)
+            conditions = conditions_hash.map { |key, value| "#{key}=#{BoltzRecord:Utility.sql_strings(value)}"}.join(" AND ")
+          elsif conditions_hash.class == String
+            conditions = conditions_hash
+          end
+        end
+
+        sql = <<-SQL
+          DELETE FROM #{table}
+          WHERE #{conditions}
+        SQL
+      else
+        sql = <<-SQL
+          DELETE FROM #{table}
+        SQL
+      end
+      puts sql
+      puts params
+      connection.execute(sql, params)
+      true
     end
   end
 end

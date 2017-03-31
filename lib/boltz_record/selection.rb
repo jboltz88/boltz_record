@@ -155,7 +155,6 @@ module Selection
       SELECT #{columns.join ","} FROM #{table}
       WHERE #{expression};
     SQL
-    puts sql
     rows = connection.execute(sql, params)
     rows_to_array(rows)
   end
