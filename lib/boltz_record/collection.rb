@@ -56,6 +56,26 @@ module BoltzRecord
       self.any? ? self.first.class.where(string) : false
     end
 
+    def destroy_all(*args)
+      ids = self.map(&:id)
+      if args.count > 1
+        expression = args.shift
+        params = args
+      else
+        case args.first
+        when String
+          expression = args.first
+        when Hash
+          expression_hash = BoltzRecord::Utility.convert_keys(args.first)
+          expression = expression_hash.map { |key, value| "NOT #{key} = #{BoltzRecord::Utility.sql_strings(value)}"}.join(" AND ")
+        end
+        params = []
+      end
+      group = "id IN (#{ids.join ","}) AND #{expression}"
+      params.unshift group
+      self.any? ? self.first.class.destroy_all(*params) : false
+    end
+
     def method_missing(method_name, *arguments, &block)
       if method_name.to_s =~ /update_(.*)/
         updates = {}
