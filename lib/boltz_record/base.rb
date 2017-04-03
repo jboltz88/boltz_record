@@ -4,6 +4,7 @@ require 'boltz_record/persistence'
 require 'boltz_record/selection'
 require 'boltz_record/connection'
 require 'boltz_record/collection'
+require 'boltz_record/associations'
 
 module BoltzRecord
   class Base
@@ -11,6 +12,7 @@ module BoltzRecord
     extend Selection
     extend Schema
     extend Connection
+    extend Associations
 
     def initialize(options={})
       options = BoltzRecord::Utility.convert_keys(options)

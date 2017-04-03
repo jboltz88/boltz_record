@@ -1,4 +1,5 @@
 require 'sqlite3'
+require 'pg'
 require 'boltz_record/utility'
 
 module Schema
