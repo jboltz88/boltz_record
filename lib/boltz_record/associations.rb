@@ -1,6 +1,6 @@
 require 'sqlite3'
 require 'pg'
-require 'activesupport/inflector'
+require 'active_support/inflector'
 
 module Associations
   def has_many(association)
